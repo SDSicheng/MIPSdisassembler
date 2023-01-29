@@ -1,0 +1,126 @@
+public class MIPSdisassembler {
+
+
+
+	public static void main(String[] args) {
+		
+		int opcode, rs, rt, rd, funct, offset,num;
+	     int first_address = 0x9A040;
+	     short handler = 0;
+	     int codes[] = { 0xa1020000,0x810AFFFC,0x00831820,0x01263820,0x01224820,0x81180000,0x81510010,0x00624022,0x00000000,0x00000000,0x00000000,0x00000000};
+	     	   	 	
+	     for(int machine_instruction : codes) {
+	         opcode = bits_31_26(machine_instruction) >>> 26; 
+	         
+	         if(opcode == 0) {
+	             System.out.printf("%x", first_address);         
+	             rs = bits_25_21(machine_instruction) >>> 21; 
+	             rt = bits_20_16(machine_instruction) >>> 16;
+	             rd = bits_15_11(machine_instruction) >>> 11;
+	             funct = bits_5_0(machine_instruction);
+	             //opcode for R format
+	             if (funct == 32){
+	                 System.out.print(" add ");
+	               
+	             }
+	             else if (funct == 34){
+	                 System.out.print(" sub ");
+	             }
+	             else if(funct == 36) {
+	                 System.out.printf(" and ");
+	             }
+	             else if(funct == 37) {
+	                 System.out.printf(" or  ");
+	             }
+	             else if(funct == 42) {
+	                 System.out.printf(" slt ");
+	                 
+	             }
+	             System.out.print(" $" + rd +", $" + rs  + ", $" +  rt);
+	             
+	          }
+	         	 else if (opcode == 4 || opcode == 5) {
+	                 System.out.printf("%x", first_address);
+	                 rs = bits_25_21(machine_instruction); 
+	                 rt = bits_20_16(machine_instruction);
+	                 rd = bits_15_11(machine_instruction) ;
+	                 rs = (rs >> 21);
+	                 rt = (rt >> 16);
+	                 offset = bits_15_0(machine_instruction);
+	                 handler = (short) (offset);
+	                 
+	                 if(opcode == 4) {
+	                     System.out.printf(" beq ");                
+	                 }
+	                 
+	                 else if(opcode == 5) {
+	                     System.out.printf(" bne ");
+	                 }
+	                 
+	                 
+	                 System.out.print(" $" + rs +", $" + rt );
+	                 System.out.printf(", address %x   ", first_address + 4 * (handler+1));
+	         }
+	          
+	             else {
+	                 System.out.printf("%x", first_address);
+	                 rs = bits_25_21(machine_instruction) >>> 21; 
+	                 rt = bits_20_16(machine_instruction) >>> 16;
+	                 offset = bits_15_0(machine_instruction);
+	                 handler = (short) offset;
+	                 
+	                 //opcode for I format
+	                 if(opcode == 4) {
+	                     System.out.printf(" beq ");                
+	                 }
+	                 else if(opcode == 5) {
+	                     System.out.printf(" bne ");
+	                 }
+	                 else if(opcode == 0x20) {
+	                     System.out.printf(" lb ");
+	                 }
+	                 else if(opcode == 0x28) {
+	                     System.out.printf(" sb ");                
+	                 }
+	                 else {
+	                     System.out.println("Error: Instruction was not found.");
+	                 }
+	     
+	                 System.out.print(" $" + rt +", " + handler  + " ($" +  rs + ")");
+	             }
+	         
+		     first_address += 4;
+	         System.out.println();
+
+	             
+	         }
+
+	         
+	     }
+
+	
+	 public static int bits_31_26(int instruction) {
+	 	    return instruction & 0xFC000000;
+	 	}
+
+	 	public static int bits_25_21(int instruction) {
+	 	    return instruction & 0x3E00000;
+	 	}
+
+	 	public static int bits_20_16(int instruction) {
+	 	    return instruction & 0x1F0000;
+	 	}
+
+	 	public static int bits_15_11(int instruction) {
+	 	    return instruction & 0xF800;
+	 	}
+
+	 	public static int bits_5_0(int instruction) {
+	 	    return instruction & 0x3F;
+	 	}
+
+	 	public static int bits_15_0(int instruction) {
+	 	    return instruction & 0xFFFF;
+	 	}
+	}
+
